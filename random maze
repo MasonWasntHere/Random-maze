@@ -4,6 +4,7 @@ class Node:
     def __init__(self, value):
         self.value = value  
         self.children = []
+        self.on_optimal_path = False  # marks the most opitmal path
 
     def add_child(self, child_node):
         self.children.append(child_node)
@@ -45,12 +46,38 @@ def generate_random_tree_with_dead_ends_marked():
     root.add_child(dfs(0, 0))
     return root
 
+# find shortest path from start to finish
+def find_shortest_path(root, target="7,7"):
+    from collections import deque
+
+    queue = deque()
+    queue.append((root, [root]))
+    while queue:
+        current, path = queue.popleft()
+        if current.value == target:
+            return path
+        for child in current.children:
+            queue.append((child, path + [child]))
+    return None
+
+# marks the optimal path
+def mark_optimal_path(root, target="7,7"):
+    path = find_shortest_path(root, target)
+    if path:
+        for node in path:
+            node.on_optimal_path = True
+
 # tree printer
 def print_tree(node, level=0):
-    print("--" * level + f"- {node.value}")
+    prefix = "--" * level + "- "
+    if node.on_optimal_path:
+        print(prefix + f"*{node.value}*")
+    else:
+        print(prefix + node.value)
     for child in node.children:
         print_tree(child, level + 1)
 
-# runs it
+# run everything
 tree = generate_random_tree_with_dead_ends_marked()
+mark_optimal_path(tree)
 print_tree(tree)
