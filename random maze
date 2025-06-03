@@ -1,0 +1,56 @@
+import random
+
+class Node:
+    def __init__(self, value):
+        self.value = value  
+        self.children = []
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+
+    def __repr__(self):
+        return f"Node({self.value})"
+
+def generate_random_tree_with_dead_ends_marked():
+    size = 8
+    visited = [[False for _ in range(size)] for _ in range(size)]
+
+    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]  
+
+    def in_bounds(y, x):
+        return 0 <= y < size and 0 <= x < size
+
+    def dfs(y, x):
+        visited[y][x] = True
+        
+        children = []
+        neighbors = [(y + dy, x + dx) for dy, dx in directions if in_bounds(y + dy, x + dx)]
+        random.shuffle(neighbors)
+
+        for ny, nx in neighbors:
+            if not visited[ny][nx]:
+                child = dfs(ny, nx)
+                children.append(child)
+
+        # ends path when it reaches 7,7
+        if not children and (y, x) != (7, 7):
+            node = Node(f"{y},{x}X")
+        else:
+            node = Node(f"{y},{x}")
+            node.children = children
+
+        return node
+
+    root = Node("Micro Mouse Tree")
+    root.add_child(dfs(0, 0))
+    return root
+
+# tree printer
+def print_tree(node, level=0):
+    print("--" * level + f"- {node.value}")
+    for child in node.children:
+        print_tree(child, level + 1)
+
+# runs it
+tree = generate_random_tree_with_dead_ends_marked()
+print_tree(tree)
